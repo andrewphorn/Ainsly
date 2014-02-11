@@ -1,9 +1,6 @@
  * NameListEnd ( proto, channel )
    Called when namelistend packet is sent (end of namelist)
 
- * CmdEvent ( proto, user, channel, command, [message] )
-   Called when a command is seen
-
  * MsgEvent ( proto, user, channel, [message] )
    Called when a privmsg is recieved
 

@@ -22,6 +22,7 @@ class AinslyProtocol(irc.IRCClient):
 	realname = 'Ainsly v.1'
 	ident = 'AinslyBot'
 	cmdprefix = ""
+	rc = reactor
 
 	def commands(self):
 		global commands
@@ -76,7 +77,6 @@ class AinslyProtocol(irc.IRCClient):
 		for chan in config.list('channels'):
 			chan = str(chan.lower())
 			self.join(chan)
-			self.channels[chan] = {}
 		reactor.callLater(.1,self.goThroughEvents)
 
 	def privmsg(self,user,channel,message):
@@ -157,18 +157,26 @@ class AinslyProtocol(irc.IRCClient):
 	def userKicked(self, kickee, chan, kicker, message):
 		chan = chan.lower()
 		username = kickee.split('!')[0]
-		self.callEvent('KickEvent', kickee, channel, kicker, message.split(' '))
 
-		if username in self.channels[channel].keys():
-			del self.channels[channel][username]
+		if username in self.channels[chan].keys():
+			del self.channels[chan][username]
 
 		if username == self.nickname:
-			del self.channels[channel]
+			self.callEvent('SelfKickEvent', chan, kicker, message.split(' '))
+			del self.channels[chan]
+		else:
+			self.callEvent('UserKickEvent', kickee, chan, kicker, message.split(' '))
 
 
 	def joined(self,channel):
 		channel = channel.lower()
+		self.channels[channel] = {}
 		self.callEvent('SelfJoinEvent', channel)
+
+	def left(self,channel):
+		channel = channel.lower()
+		del self.channels[channel]
+		self.callEvent('SelfLeaveEvent', channel)
 
 	def irc_NICK(self, old, new):
 		for chan in self.channels.keys():

@@ -3,6 +3,7 @@ import inspect, sys
 
 handlers = {}
 
+# Decorator to register an event handler.
 def registerEvent(name,priority=5):
 	def wrapper(func):
 		plname = str(func.__module__).split('.',1)[1]
@@ -22,6 +23,7 @@ def registerEvent(name,priority=5):
 
 	return wrapper
 
+# Decorator to register a command.
 def registerCommand(name,requires_op=False,requires_voice=False,requires_admin=False,min_args=0, max_args=-1):
 	def wrapper(func):
 		print("Registering command '%s'" % (name))
@@ -43,22 +45,22 @@ def registerCommand(name,requires_op=False,requires_voice=False,requires_admin=F
 		return func
 	return wrapper
 
+# Load a plugin
 def load(plugin):
+	"""Loads a plugin by name"""
 	plugin = plugin.lower()
 	try:
 		if ('plugins.%s' % plugin) in sys.modules:
 			reload(sys.modules['plugins.%s' % plugin])
 		else:
 			__import__("plugins.%s" % plugin)
-		#for x in plu.eventHandlers:
-		#	if len(x) < 3:
-		#		x.append(5)
-		#	events.registerEvent(x[0],x[1],x[2])
 	except ImportError,e:
 		print('Failed to load plugin %s: %s' % (plugin,e))
 	return True
 
+# Unload a plugin
 def unload(plugin):
+	"""Unloads a plugin by name"""
 	plugin = plugin.lower()
 	try:
 		if plugin in handlers:
@@ -68,8 +70,6 @@ def unload(plugin):
 						if events.unregisterEvent(evname,func):
 							print("Unregistered event: %s" % evname)
 			del handlers[plugin]
-		#for x in plu.eventHandlers:
-		#	events.unregisterEvent(x[0],x[1])
 	except Exception,e:
 		print('Failed to unload plugin %s: %s' % (plugin,e))
 	return True
