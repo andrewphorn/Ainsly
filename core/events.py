@@ -1,3 +1,4 @@
+import traceback
 events = {}
 
 def registerEvent(name,func,priority=5):
@@ -81,7 +82,7 @@ def callEvent(name,*args):
 				x = func(*x)
 			except Exception,e:
 				print("An exception occurred!")
-				print(e)
+				traceback.print_exc()
 
 				# To prevent bad things from happening,
 				## stop the event from continuing

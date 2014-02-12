@@ -4,7 +4,7 @@ from twisted.words.protocols import irc
 
 import events, config
 
-import sys, os, time, re
+import sys, os, time, re, traceback
 
 config = config.confObject()
 plugins = None
@@ -17,7 +17,7 @@ class AinslyProtocol(irc.IRCClient):
 
 	channels = {}
 	data = {'users':{}}
-	evqueue = {'msg':[],'ctcp':[]}
+	evqueue = {'msg':[],'ctcp':[],'notice':[]}
 	nickname = config.string('nickname')
 	realname = 'Ainsly v.1'
 	ident = 'AinslyBot'
@@ -70,14 +70,18 @@ class AinslyProtocol(irc.IRCClient):
 		self.callEvent('NameListEnd', channel)
 
 	def signedOn(self):
+		reactor.callLater(.1,self.goThroughEvents)
+
 		global proto
 		self.cmdprefix = config.string('prefix')
 		proto = self
-		self.callEvent('SignedOn')
+		if self.callEvent('SignedOn'):
+			self.joinConfigChannels()
+
+	def joinConfigChannels(self):
 		for chan in config.list('channels'):
 			chan = str(chan.lower())
 			self.join(chan)
-		reactor.callLater(.1,self.goThroughEvents)
 
 	def privmsg(self,user,channel,message):
 		channel = channel.lower()
@@ -147,12 +151,17 @@ class AinslyProtocol(irc.IRCClient):
 						commands[cmd]['func'](self,user,channel,args)
 					except Exception,e:
 						self.sendMessage(channel,'An error occurred - Please check the bot console for more information.')
-						print(e)
+						traceback.print_exc()
 				else:
 					self.sendMessage(channel, err)
 			return
 
 		self.callEvent('MsgEvent', user, channel, message.split(' '))
+
+	def noticed(self,user,channel,message):
+		chan = channel.lower()
+		message = message.split(' ')
+		self.callEvent('NoticeEvent',user,chan,message)
 
 	def userKicked(self, kickee, chan, kicker, message):
 		chan = chan.lower()
@@ -229,24 +238,36 @@ class AinslyProtocol(irc.IRCClient):
 		plugins.load(plugin)
 
 	def goThroughEvents(self):
+		# messages
 		if len(self.evqueue['msg']) > 0:
 			m = self.evqueue['msg'].pop(0)
 			if m[1].lower in ['q','nickserv']:
 				self.msg(m[0],m[1])
 			else:
-				x = self.callEvent('SelfMsgEvent', m[0], m[1])
+				x = self.callEvent('SendMsgEvent', m[0], m[1])
 				if x not in [True, None]:
 					if x != False:
 						self.msg(x[0],x[1])
 				else:
 					self.msg(m[0],m[1])
 
-
+		# notices
+		if len(self.evqueue['notice']) > 0:
+			n = self.evqueue['notice'].pop(0)
+			x = self.callEvent('SendNoticeEvent', n[0], n[1])
+			if x not in [True, None]:
+				if x != False:
+					self.notice(x[0],x[1])
+			else:
+				self.notice(n[0],n[1])
 
 		reactor.callLater(0.5,self.goThroughEvents)
 
 
 	def sendMessage(self,target,words):
 		self.evqueue['msg'].append((target,words))
+
+	def sendNotice(self,target,words):
+		self.evqueue['notice'].append((target,words))
 
 

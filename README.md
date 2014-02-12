@@ -27,10 +27,19 @@ Documentation
 
 #### Events
 
+ * **SignedOn** - Called when signed on, but before joining channels.
+    * Arguments: protocol
+
  * **NameListEnd** - Called when NameListend packet is found.
     * Arguments: protocol, channel
 
- * **Msgevent** - Called when a privmsg is recieved
+ * **MsgEvent** - Called when a privmsg is recieved
+    * Arguments: protocol, user, channel, [message]
+
+ * **SelfMsgEvent** - Called when a privmsg is being prepared to be sent
+    * Arguments: protocol, channel, [message]
+
+ * **NoticeEvent** - Called when a notice is recieved
     * Arguments: protocol, user, channel, [message]
 
  * **SelfKickEvent** - Called when your bot is kicked

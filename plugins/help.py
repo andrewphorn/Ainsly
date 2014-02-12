@@ -12,10 +12,25 @@ def helpCommand(proto,user,channel,words):
 	elif words[0].lower() in proto.commands().keys():
 		command = proto.commands()[words[0].lower()]
 	else:
-		command = {'help':'Command not found.'}
+		command = {'help':'%s - Command not found.' % words[0].lower()}
 
 	if command['help'] == 'None':
-		command['help'] = '%s - No help available :(' % command['command']
+		command['help'] = '%s - No help available.' % command['command']
 
-	proto.sendMessage(channel,'%s: %s%s' % (user,proto.cmdprefix,command['help']))
+	proto.sendNotice(user,'%s%s' % (proto.cmdprefix,command['help']))
 
+@plugin.registerCommand('commands',min_args=0,max_args=0)
+def commandsCommand(proto,user,channel,words):
+	"""commands - Provides a list of commands available to you in the channel where you called it."""
+	cmdlist = []
+	username = user.split('!')[0].lower()
+	x=proto.commands()
+	for cmd in x.keys():
+		if x[cmd]['admin'] and proto.isAdmin(username):
+			cmdlist.append(x[cmd]['command'].lower())
+		elif x[cmd]['op'] and proto.isOp(username, channel.lower()):
+			cmdlist.append(x[cmd]['command'].lower())
+		elif x[cmd]['voice'] and proto.isVoice(username, channel.lower()):
+			cmdlist.append(x[cmd]['command'].lower())
+	cmds = ", ".join(cmdlist)
+	proto.sendNotice(username, 'Available commands: %s' % cmds)

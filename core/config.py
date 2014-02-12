@@ -5,7 +5,7 @@ class conf(object):
 	def __init__(self, defaults):
 		self.data = {}
 		self.default = defaults
-		self.filename = 'config.json'
+		self.filename = 'config'
 
 	def setConfig(self,f):
 		self.filename = str(f)
@@ -14,7 +14,7 @@ class conf(object):
 	def loadConfig(self):
 		print("Loading Config")
 		try:
-			with open('data/%s' % self.filename,'r') as f:
+			with open('data/%s.json' % self.filename,'r') as f:
 				self.data = json.loads(f.read())
 			if self.data == {}:
 				raise ValueError
@@ -27,7 +27,7 @@ class conf(object):
 
 	def saveConfig(self):
 		print("Saving Config")
-		with open('data/%s' % self.filename,'w') as f:
+		with open('data/%s.json' % self.filename,'w') as f:
 			f.write(json.dumps(self.data, indent=4))
 			f.close()
 		return self
@@ -60,6 +60,11 @@ class conf(object):
 		if key in self.data:
 			return float(self.data[key])
 		return 0.0
+
+	def bool(self,key):
+		if key in self.data:
+			return bool(self.data[key])
+		return False
 
 def confObject():
 	default = {
