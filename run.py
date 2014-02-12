@@ -1,11 +1,15 @@
+import os 
+
+os.mkdir('data')
+
 from twisted.internet import reactor,protocol
 from core import protocol as proto
+import plugins
+
+
 
 config = proto.config
 AinslyProtocol = proto.AinslyProtocol
-
-import plugins
-
 proto.plugins = plugins
 
 for plugin in config.list('plugins'):
