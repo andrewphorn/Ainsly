@@ -1,7 +1,12 @@
 import os 
-
-os.mkdir('data')
-
+try:
+	os.mkdir('data')
+except WindowsError:
+	pass
+except Exception:
+	print("Failed to create data directory, please create the directory yourself and re-run the bot.")
+	import sys
+	sys.exit()
 from twisted.internet import reactor,protocol
 from core import protocol as proto
 import plugins
