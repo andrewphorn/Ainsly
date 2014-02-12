@@ -28,7 +28,7 @@ def commandsCommand(proto,user,channel,words):
 	for cmd in x.keys():
 		if x[cmd]['admin'] and proto.isAdmin(username):
 			cmdlist.append(x[cmd]['command'].lower())
-		elif x[cmd]['op'] and proto.isOp(username, channel.lower()):
+		elif x[cmd]['op'] and proto.isOP(username, channel.lower()):
 			cmdlist.append(x[cmd]['command'].lower())
 		elif x[cmd]['voice'] and proto.isVoice(username, channel.lower()):
 			cmdlist.append(x[cmd]['command'].lower())

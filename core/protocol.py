@@ -57,9 +57,11 @@ class AinslyProtocol(irc.IRCClient):
 			if '@' in user:
 				u['op'] = True
 				user = user[1:]
+				usr = usr[1:]
 			if '+' in user:
 				u['voice'] = True
 				user = user[1:]
+				usr = usr[1:]
 			self.channels[channel]['users'][user] = u
 			if user not in self.data['users']:
 				self.data['users'][user] = {'nickname':str(usr),'admin':self.isAdmin(user)}
