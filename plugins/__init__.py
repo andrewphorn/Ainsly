@@ -51,6 +51,7 @@ def load(plugin):
 	plugin = plugin.lower()
 	try:
 		if ('plugins.%s' % plugin) in sys.modules:
+			unload(plugin) # Make sure not to allow dupe events.
 			reload(sys.modules['plugins.%s' % plugin])
 		else:
 			__import__("plugins.%s" % plugin)
@@ -80,26 +81,28 @@ def unload(plugin):
 
 @registerCommand('pll',requires_admin=True,min_args=1,max_args=1)
 def commandLoadPlugin(proto, user, channel, args):
-	"""pll <plugin> - Loads <plugin>"""
+	"""pll <plugin> - Loads <plugin>. Note that you can load plugins as many times as you want without adverse effects."""
 	plugin = args[0].lower()
 	if load(plugin):
-		proto.msg(channel, "Loaded %s" % plugin)
+		proto.sendMessage(channel, "Loaded %s" % plugin)
 	else:
-		proto.msg(channel, "Failed to load %s - see console for details" % plugin)
+		proto.sendMessage(channel, "Failed to load %s - see console for details" % plugin)
 
 @registerCommand('plu',requires_admin=True,min_args=1,max_args=1)
 def commandUnloadPlugin(proto, user, channel, args):
-	"""plu <plugin> - Unloads <plugin>"""
+	"""plu <plugin> - Unloads <plugin>. Note that you can unload plugins as many times as you want without adverse effects."""
 	plugin = args[0].lower()
 	if unload(plugin):
-		proto.msg(channel, "Unloaded %s" % plugin)
+		proto.sendMessage(channel, "Unloaded %s" % plugin)
 	else:
-		proto.msg(channel, "Failed to unload %s - see console for details" % plugin)
+		proto.sendMessage(channel, "Failed to unload %s - see console for details" % plugin)
 
 @registerCommand('plr',requires_admin=True,min_args=1,max_args=1)
 def commandReloadPlugin(proto,user,channel,args):
-	"""plr <plugin> - Reloads <plugin>"""
+	"""plr <plugin> - Reloads <plugin>. Similar to using the load command."""
 	plugin = args[0].lower()
 	if unload(plugin) and load(plugin):
-		proto.msg(channel, "Reloaded %s" % plugin)
+		proto.sendMessage(channel, "Reloaded %s" % plugin)
+	else:
+		proto.sendMessage(channel, "Failed to reload %s - see console for details" % plugin)
 
