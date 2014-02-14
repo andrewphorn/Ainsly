@@ -32,5 +32,8 @@ def commandsCommand(proto,user,channel,words):
 			cmdlist.append(x[cmd]['command'].lower())
 		elif x[cmd]['voice'] and proto.isVoice(username, channel.lower()):
 			cmdlist.append(x[cmd]['command'].lower())
+		elif True not in [x[cmd]['voice'],x[cmd]['op'],x[cmd]['admin']]:
+			cmdlist.append(x[cmd]['command'].lower())
+
 	cmds = ", ".join(cmdlist)
 	proto.sendNotice(username, 'Available commands: %s' % cmds)
