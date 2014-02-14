@@ -82,6 +82,10 @@ def callEvent(name,*args):
 				x = func(*x)
 			except Exception,e:
 				print("An exception occurred!")
+				print("Helpful info: ")
+				print(x)
+				print(name)
+				print(e)
 				traceback.print_exc()
 
 				# To prevent bad things from happening,
