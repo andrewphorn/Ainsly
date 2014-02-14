@@ -1,5 +1,5 @@
 from core.protocol import config, events, commands
-import inspect, sys
+import inspect, sys, traceback
 
 handlers = {}
 
@@ -56,6 +56,10 @@ def load(plugin):
 			__import__("plugins.%s" % plugin)
 	except ImportError,e:
 		print('Failed to load plugin %s: %s' % (plugin,e))
+	except Exception,e:
+		print('Failed to load plugin %s - Helpful info')
+		print(e)
+		traceback.print_exc()
 	return True
 
 # Unload a plugin
