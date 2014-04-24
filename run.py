@@ -1,7 +1,11 @@
 import os 
 try:
-	os.mkdir('data')
-except WindowsError:
+	try:
+		os.mkdir('data')
+	except WindowsError:
+		pass
+except SyntaxError:
+	# Linux
 	pass
 except Exception:
 	print("Failed to create data directory, please create the directory yourself and re-run the bot.")
