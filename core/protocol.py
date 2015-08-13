@@ -45,11 +45,11 @@ class AinslyProtocol(irc.IRCClient):
 
 	def isOP(self,username,channel):
 		"""Checks for OP status in a channel"""
-		return username in self.channels.[channel.lower()]['users'] and (self.isAdmin(username) or self.channels[channel.lower()]['users'][username.lower()]['op'])
+		return username in self.channels[channel.lower()]['users'] and (self.isAdmin(username) or self.channels[channel.lower()]['users'][username.lower()]['op'])
 
 	def isVoice(self,username,channel):
 		"""Checks for voice status in a channel"""
-		return username in self.channels.[channel.lower()]['users'] and (self.isOP(username,channel) or self.channels[channel.lower()]['users'][username.lower()]['voice'])
+		return username in self.channels[channel.lower()]['users'] and (self.isOP(username,channel) or self.channels[channel.lower()]['users'][username.lower()]['voice'])
 
 	def irc_RPL_NAMREPLY(self, prefix, params):
 		"""Called when a userlist is received for a channel"""
