@@ -20,7 +20,7 @@ class AinslyProtocol(irc.IRCClient):
 	data = {'users':{}}
 	evqueue = {'msg':[],'ctcp':[],'notice':[],'ctcp':[]}
 	nickname = config.string('nickname')
-	realname = 'Ainsly v.1'
+	realname = 'Ainsly v.2'
 	ident = 'AinslyBot'
 	cmdprefix = "" # Set the default cmd prefix in case we somehow get a message before config is loaded.
 	rc = reactor # For convenience - you can still import twisted's reactor on your own.

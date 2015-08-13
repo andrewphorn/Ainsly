@@ -1,4 +1,4 @@
-import json
+import json, os
 
 class conf(object):
 
@@ -14,7 +14,7 @@ class conf(object):
 	def loadConfig(self):
 		print("Loading Config")
 		try:
-			with open('data/%s.json' % self.filename,'r') as f:
+			with open('%s/data/%s.json' % (__file__, self.filename),'r') as f:
 				self.data = json.loads(f.read())
 			if self.data == {}:
 				raise ValueError
@@ -27,7 +27,7 @@ class conf(object):
 
 	def saveConfig(self):
 		print("Saving Config")
-		with open('data/%s.json' % self.filename,'w') as f:
+		with open('%s/data/%s.json' % (__file__, self.filename),'w') as f:
 			f.write(json.dumps(self.data, indent=4))
 			f.close()
 		return self
