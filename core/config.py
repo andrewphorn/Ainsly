@@ -1,5 +1,9 @@
 import json, os
 
+import script_dir, __main__
+
+loc = os.path.dirname(__main__.__file__)
+
 class conf(object):
 
 	def __init__(self, defaults):
@@ -14,7 +18,7 @@ class conf(object):
 	def loadConfig(self):
 		print("Loading Config")
 		try:
-			with open('%s/data/%s.json' % (__file__, self.filename),'r') as f:
+			with open('%s/data/%s.json' % (loc, self.filename),'r') as f:
 				self.data = json.loads(f.read())
 			if self.data == {}:
 				raise ValueError
@@ -27,7 +31,7 @@ class conf(object):
 
 	def saveConfig(self):
 		print("Saving Config")
-		with open('%s/data/%s.json' % (__file__, self.filename),'w') as f:
+		with open('%s/data/%s.json' % (loc, self.filename),'w') as f:
 			f.write(json.dumps(self.data, indent=4))
 			f.close()
 		return self
