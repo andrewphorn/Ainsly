@@ -5,9 +5,9 @@ from urllib import urlencode
 from HTMLParser import HTMLParser
 
 import plugins as plugin
+import re
 import json
 import htmlentitydefs
-import nltk
 import traceback
 import urllib
 
@@ -36,7 +36,7 @@ def html_to_text(html):
     return s.get_text().replace("\n","")
 
 def plain_sentence(inp):
-	sents = nltk.tokenize.sent_tokenize(inp)[0:3]
+	sents = re.split("(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?)\s", inp)[:3]
 	if len(sents) == 1 and len(sents[0]) < 310:
 		return sents[0]
 	if len(sents) == 2 and (len(" ".join(sents[0:1]))) < 310:
