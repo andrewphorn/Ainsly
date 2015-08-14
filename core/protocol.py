@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from twisted.internet import reactor, protocol
 from twisted.words.protocols import irc
+import logger
 
 import events, config
 
@@ -9,12 +10,15 @@ import sys, os, time, re, traceback
 config = config.confObject()
 plugins = None
 proto = None
+log = logger.LoggerClass()
 commands = {}
 
 MESSAGE_RE = re.compile(r'''((?:[^\s"']|"[^"]*"|'[^']*')+)''')
 
 class AinslyProtocol(irc.IRCClient):
     """Base protocol for the bot"""
+
+    global log
 
     channels = {}
     data = {'users':{}}
@@ -83,7 +87,7 @@ class AinslyProtocol(irc.IRCClient):
     def signedOn(self):
         """Called when the bot signs on"""
         reactor.callLater(.1,self.goThroughEvents)
-
+        log.debug("Signed on as %s" % self.nickname)
         global proto
         self.cmdprefix = config.string('prefix')
         proto = self
@@ -92,6 +96,7 @@ class AinslyProtocol(irc.IRCClient):
 
     def joinConfigChannels(self):
         """Joins the channels listed in the config"""
+        log.debug("Joining channels: %s" % ", ".join(config.list('channels')))
         for chan in config.list('channels'):
             chan = str(chan.lower())
             self.join(chan)
@@ -100,7 +105,7 @@ class AinslyProtocol(irc.IRCClient):
         """Called when the bot gets a message"""
         channel = channel.lower()
         username = user.split('!')[0].lower()
-        print('<%s:%s> %s' % (user.split('!')[0],channel,message))
+        log.log('<%s> %s: %s' % (channel,username,message))
         if message.startswith(self.cmdprefix) and channel != self.nickname:
             # Filter out the prefix
             msg = message[len(self.cmdprefix):]
@@ -110,8 +115,7 @@ class AinslyProtocol(irc.IRCClient):
 
             # Or not at all
             if cmd not in commands.keys():
-                print("Is not in commands")
-                print(cmd)
+                log.debug("Command does not exist: %s" % str(cmd))
                 return
 
             # Filter out the command from the args
@@ -165,6 +169,7 @@ class AinslyProtocol(irc.IRCClient):
                         commands[cmd]['func'](self,user,channel,args)
                     except Exception,e:
                         self.sendMessage(channel,'An error occurred - Please check the bot console for more information.')
+                        log.error("HARK, AN ERROR! PRINTING STACK TRACE")
                         traceback.print_exc()
                 else:
                     self.sendMessage(channel, err)
@@ -174,12 +179,14 @@ class AinslyProtocol(irc.IRCClient):
 
     def noticed(self,user,channel,message):
         """Called when the bot is noticed"""
+        log.log("<%s> %s: %s" % (channel, user, message))
         chan = channel.lower()
         message = message.split(' ')
         self.callEvent('NoticeEvent',user,chan,message)
 
     def userKicked(self, kickee, chan, kicker, message):
         """Called when the bot or somebody else is kicked"""
+        log.log("<%s> %s kicked %s (%s)" % (chan, kicker, kickee, message))
         chan = chan.lower()
         username = kickee.split('!')[0]
 
@@ -194,12 +201,14 @@ class AinslyProtocol(irc.IRCClient):
 
     def joined(self,channel):
         """Called when the bot joins."""
+        log.log("<%s> %s joined" % (channel, self.nickname))
         channel = channel.lower()
         self.channels[channel] = {}
         self.callEvent('SelfJoinEvent', channel)
 
     def left(self,channel):
         """Called when the bot leaves."""
+        log.log("<%s> %s left" % (channel, self.nickname))
         channel = channel.lower()
         del self.channels[channel]
         self.callEvent('SelfLeaveEvent', channel)
@@ -209,6 +218,7 @@ class AinslyProtocol(irc.IRCClient):
         old = old.split('!')[0].lower()
         new = new[0].lower()
         new = new.lower()
+        log.log("%s is now known as %s" % (old, new))
         for chan in self.channels.keys():
             if old in self.channels[chan]['users']:
                 self.channels[chan]['users'][new] = self.channels[chan]['users'].pop(old)
@@ -217,6 +227,8 @@ class AinslyProtocol(irc.IRCClient):
         """Called when somebody other than the bot joins."""
         chan = channel.lower()
         username = user.split('!')[0].lower()
+
+        log.log("<%s> %s joined" % (chan, username))
 
         if username not in self.data['users']:
             self.data['users'][username] = {'nickname':str(user.split('!')[0]),'admin':self.isAdmin(user)}
@@ -231,6 +243,8 @@ class AinslyProtocol(irc.IRCClient):
         chan = channel.lower()
         username = user.lower()
 
+        log.log("<%s> %s left" % (chan, username))
+
         if username in self.data['users']:
             del self.data['users'][username]
 
@@ -242,6 +256,9 @@ class AinslyProtocol(irc.IRCClient):
     def userQuit(self,user,message=''):
         """Called when somebody other than the bot quits."""
         username = user.lower()
+
+        log.log("%s has quit (%s)" % (username, message))
+
         if username in self.data['users']:
             del self.data['users'][username]
 
@@ -267,6 +284,7 @@ class AinslyProtocol(irc.IRCClient):
 
     def action(self, user, channel, message):
         """Called when somebody other than the bot uses an ACTION."""
+        log.log("<%s> * %s %s" % (channel, username, message))
         username = user.split('!')[0].lower()
         self.callEvent('UserActionEvent', user, channel, message)
 

@@ -27,7 +27,6 @@
     <Compile Include="core\logger.py" />
     <Compile Include="core\protocol.py" />
     <Compile Include="core\__init__.py" />
-    <Compile Include="plugins\configmanager.py" />
     <Compile Include="plugins\example.py" />
     <Compile Include="plugins\help.py" />
     <Compile Include="plugins\nickserv.py" />
@@ -39,6 +38,9 @@
   <ItemGroup>
     <Folder Include="core" />
     <Folder Include="plugins" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="requirements.txt" />
   </ItemGroup>
   <Import Project="$(PtvsTargetsFile)" Condition="Exists($(PtvsTargetsFile))" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" Condition="!Exists($(PtvsTargetsFile))" />

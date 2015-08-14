@@ -18,9 +18,12 @@ except ImportError:
     print("Failed to import Twisted, please install Twisted and Zope.interface")
     sys.exit()
 from core import protocol as proto
+from core import logger
+
 import plugins
 
-
+log = logger.LoggerClass()
+proto.logger = log
 
 config = proto.config
 AinslyProtocol = proto.AinslyProtocol
@@ -34,5 +37,5 @@ factory = protocol.ReconnectingClientFactory()
 factory.protocol = AinslyProtocol
 
 reactor.connectTCP(config.string('server'),config.int('port'),factory)
-print("Running AinslyBot")
+log.log("Running AinslyBot")
 reactor.run()
