@@ -1,16 +1,16 @@
 ﻿import os 
 import sys
 try:
-	try:
-		os.mkdir('data')
-	except WindowsError:
-		pass
+    try:
+        os.mkdir('data')
+    except WindowsError:
+        pass
 except SyntaxError:
-	# Linux
-	pass
+    # Linux
+    pass
 except Exception:
-	print("Failed to create data directory, please create the directory yourself and re-run the bot.")
-	sys.exit()
+    print("Failed to create data directory, please create the directory yourself and re-run the bot.")
+    sys.exit()
 
 try:
     from twisted.internet import reactor,protocol
@@ -27,7 +27,7 @@ AinslyProtocol = proto.AinslyProtocol
 proto.plugins = plugins
 
 for plugin in config.list('plugins'):
-	proto.plugins.load(plugin.lower())
+    proto.plugins.load(plugin.lower())
 
 
 factory = protocol.ReconnectingClientFactory()
