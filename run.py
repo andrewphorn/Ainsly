@@ -1,4 +1,5 @@
-import os 
+﻿import os 
+import sys
 try:
 	try:
 		os.mkdir('data')
@@ -9,9 +10,13 @@ except SyntaxError:
 	pass
 except Exception:
 	print("Failed to create data directory, please create the directory yourself and re-run the bot.")
-	import sys
 	sys.exit()
-from twisted.internet import reactor,protocol
+
+try:
+    from twisted.internet import reactor,protocol
+except ImportError:
+    print("Failed to import Twisted, please install Twisted and Zope.interface")
+    sys.exit()
 from core import protocol as proto
 import plugins
 
