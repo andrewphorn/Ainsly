@@ -1,6 +1,10 @@
-import json, os
+﻿import json, os
 
-import script_dir, __main__
+import __main__
+
+from logger import LoggerClass
+
+log = LoggerClass()
 
 loc = os.path.dirname(__main__.__file__)
 
@@ -16,21 +20,21 @@ class conf(object):
         return self
 
     def loadConfig(self):
-        print("Loading Config")
+        log.debug("Loading Config")
         try:
             with open('%s/data/%s.json' % (loc, self.filename),'r') as f:
                 self.data = json.loads(f.read())
             if self.data == {}:
                 raise ValueError
         except Exception,e:
-            print(e)
+            log.warning("Error loading config: %s" % e)
             self.data = self.default
             self.saveConfig()
         finally:
             return self
 
     def saveConfig(self):
-        print("Saving Config")
+        log.debug("Saving Config")
         with open('%s/data/%s.json' % (loc, self.filename),'w') as f:
             f.write(json.dumps(self.data, indent=4))
             f.close()

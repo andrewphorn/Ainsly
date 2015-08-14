@@ -1,4 +1,4 @@
-from core.protocol import config, events, commands
+﻿from core.protocol import config, events, commands, log
 import inspect, sys, traceback
 
 handlers = {}
@@ -7,7 +7,7 @@ handlers = {}
 def registerEvent(name,priority=5):
     def wrapper(func):
         plname = str(func.__module__).split('.',1)[1]
-        print("Registering event '%s' for plugin %s" % (name, plname))
+        log.debug("Registering event '%s' for plugin %s" % (name, plname))
         reg = events.registerEvent(str(name),func,int(priority))
         global handlers
         if plname not in handlers:
@@ -26,7 +26,7 @@ def registerEvent(name,priority=5):
 # Decorator to register a command.
 def registerCommand(name,requires_op=False,requires_voice=False,requires_admin=False,min_args=0, max_args=-1):
     def wrapper(func):
-        print("Registering command '%s'" % (name))
+        log.debug("Registering command '%s'" % (name))
         hlp = inspect.getdoc(func)
         cmd = {
             "command": str(name),
@@ -56,10 +56,9 @@ def load(plugin):
         else:
             __import__("plugins.%s" % plugin)
     except ImportError,e:
-        print('Failed to load plugin %s: %s' % (plugin,e))
+        log.error('Failed to load plugin %s: %s' % (plugin,e))
     except Exception,e:
-        print('Failed to load plugin %s - Helpful info')
-        print(e)
+        log.error('Failed to load plugin %s - Helpful info')
         traceback.print_exc()
     return True
 
@@ -73,10 +72,10 @@ def unload(plugin):
                 for priority in handlers[plugin][evname]:
                     for func in handlers[plugin][evname][priority]:
                         if events.unregisterEvent(evname,func):
-                            print("Unregistered event: %s" % evname)
+                            log.debug("Unregistered event: %s" % evname)
             del handlers[plugin]
     except Exception,e:
-        print('Failed to unload plugin %s: %s' % (plugin,e))
+        log.error('Failed to unload plugin %s: %s' % (plugin,e))
     return True
 
 @registerCommand('pll',requires_admin=True,min_args=1,max_args=1)
